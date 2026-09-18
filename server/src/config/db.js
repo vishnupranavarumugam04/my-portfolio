@@ -101,16 +101,16 @@ const getSiteData = async () => {
 const updateSiteData = async (newData) => {
   if (isConnectedToMongo) {
     try {
-      let doc = await Site.findOne();
-      if (!doc) {
-        doc = new Site(newData);
-      } else {
-        Object.assign(doc, newData);
+      const doc = await Site.findOneAndUpdate(
+        {},
+        { $set: newData },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+      );
+      if (doc) {
+        return doc.toObject();
       }
-      await doc.save();
-      return doc.toObject();
     } catch (err) {
-      console.error('Error saving to Mongo, saving to local fallback:', err.message);
+      console.error('Error saving to Mongo, falling back to local store:', err.message);
     }
   }
 
