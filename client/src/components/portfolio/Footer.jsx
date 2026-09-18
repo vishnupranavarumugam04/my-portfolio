@@ -1,6 +1,5 @@
 import React from 'react';
-import { ArrowUp, Lock, Cpu, Sun, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowUp, Cpu, Sun, Moon } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 
 export const Footer = ({ siteData }) => {
@@ -36,15 +35,6 @@ export const Footer = ({ siteData }) => {
           <a href="#achievements" className="hover:text-black dark:hover:text-white transition-colors">Achievements</a>
           <a href="#connect" className="hover:text-black dark:hover:text-white transition-colors">Connect</a>
           
-          {/* Secret Admin Portal Link */}
-          <Link
-            to="/x7k9-admin"
-            className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-zinc-500 text-zinc-800 dark:text-zinc-200 transition-colors font-bold"
-            title="Admin CMS (/x7k9-admin)"
-          >
-            <Lock className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
-            <span>Admin</span>
-          </Link>
 
           {/* Back to top button */}
           <button
