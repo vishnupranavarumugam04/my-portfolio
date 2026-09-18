@@ -147,7 +147,7 @@ export const ConnectSection = ({ siteData }) => {
               <div className="relative">
                 <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden border-4 border-white dark:border-zinc-900 shadow-xl bg-zinc-800">
                   <img
-                    src={siteData?.hero?.imageUrl || "/avatar.jpg"}
+                    src={(!siteData?.hero?.imageUrl || siteData.hero.imageUrl.includes('unsplash.com')) ? '/avatar.jpg' : siteData.hero.imageUrl}
                     alt={about.fullName || "Vishnu Pranav Arumugam"}
                     className="w-full h-full object-cover object-top"
                     onError={(e) => {

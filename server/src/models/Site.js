@@ -50,7 +50,7 @@ const SiteSchema = new mongoose.Schema({
       label: { type: String, default: "Get in Touch" },
       url: { type: String, default: "#connect" }
     },
-    imageUrl: { type: String, default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" }
+    imageUrl: { type: String, default: "/avatar.jpg" }
   },
   theme: {
     mode: { type: String, default: "dark" }, // 'dark' | 'light'

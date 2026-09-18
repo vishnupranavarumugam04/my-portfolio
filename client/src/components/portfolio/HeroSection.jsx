@@ -109,7 +109,7 @@ export const HeroSection = ({ siteData }) => {
             {/* Main Portrait Frame */}
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-theme-surface shadow-2xl transition-transform duration-500">
               <img
-                src={hero.imageUrl || DEFAULT_SITE_DATA.hero.imageUrl}
+                src={(!hero.imageUrl || hero.imageUrl.includes('unsplash.com')) ? '/avatar.jpg' : hero.imageUrl}
                 alt={about.fullName || "Vishnu Pranav Arumugam"}
                 className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                 onError={(e) => {
