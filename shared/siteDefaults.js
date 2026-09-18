@@ -163,7 +163,7 @@ const DEFAULT_SITE_DATA = {
   },
   about: {
     fullName: "Vishnu Pranav Arumugam",
-    preferredName: "Pranav",
+    preferredName: "Vishnu Pranav",
     role: "Mechatronics Engineering Student | Robotics & Automation Enthusiast | Computer Vision & Embedded AI",
     bio: "Mechatronics Engineering student passionate about building intelligent robotic and automation systems. Combining mechanical mechanisms, electronics, microcontrollers, ROS 2, computer vision, and edge AI to solve complex real-world challenges.",
     email: "vishnupranavarumugam04@gmail.com",

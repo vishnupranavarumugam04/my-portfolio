@@ -97,7 +97,7 @@ const SiteSchema = new mongoose.Schema({
   },
   about: {
     fullName: { type: String, default: "Vishnu Pranav Arumugam" },
-    preferredName: { type: String, default: "Pranav" },
+    preferredName: { type: String, default: "Vishnu Pranav" },
     roleTitle: { type: String, default: "3rd-Year Mechatronics Engineering Student | Bannari Amman Institute of Technology" },
     role: { type: String, default: "Mechatronics Engineering Student | Robotics & Automation Enthusiast | Computer Vision & Embedded AI" },
     bio: { type: String, default: "Mechatronics Engineering student passionate about building intelligent robotic and automation systems. Combining mechanical mechanisms, electronics, microcontrollers, ROS 2, computer vision, and edge AI to solve complex real-world challenges." },

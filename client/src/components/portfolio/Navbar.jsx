@@ -43,7 +43,7 @@ export const Navbar = ({ siteData }) => {
           </div>
           <div className="flex flex-col">
             <span className="tracking-tight hover:opacity-80 transition-opacity font-bold text-base md:text-lg leading-tight text-zinc-900 dark:text-white">
-              {siteData?.about?.preferredName || 'Pranav'}
+              {siteData?.about?.preferredName || 'Vishnu Pranav'}
             </span>
             <span className="font-mono text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">
               Mechatronics & AI
