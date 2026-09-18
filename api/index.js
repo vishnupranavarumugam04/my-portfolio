@@ -1,7 +1,4 @@
 const dotenv = require('dotenv');
-const path = require('path');
-
-// Ensure env variables are read
 dotenv.config();
 
 const app = require('../server/src/app');
@@ -11,11 +8,20 @@ const { connectDB } = require('../server/src/config/db');
 let dbPromise = null;
 
 const handler = async (req, res) => {
-  if (!dbPromise) {
-    dbPromise = connectDB();
+  try {
+    if (!dbPromise) {
+      dbPromise = connectDB().catch((err) => {
+        console.warn('⚠️ [Serverless] Database connection warning:', err.message);
+        return null;
+      });
+    }
+    await dbPromise;
+  } catch (err) {
+    console.warn('⚠️ [Serverless] DB promise catch:', err.message);
   }
-  await dbPromise;
+
   return app(req, res);
 };
 
 module.exports = handler;
+
