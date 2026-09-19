@@ -4,13 +4,50 @@ import { DEFAULT_SITE_DATA } from './siteDefaults';
 
 const SiteContext = createContext(null);
 
+const CACHE_KEY = 'portfolio_site_data_v1';
+
+const getInitialSiteData = () => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          ...DEFAULT_SITE_DATA,
+          ...parsed,
+          hero: { ...DEFAULT_SITE_DATA.hero, ...(parsed.hero || {}) },
+          theme: { ...DEFAULT_SITE_DATA.theme, ...(parsed.theme || {}) },
+          about: { ...DEFAULT_SITE_DATA.about, ...(parsed.about || {}) },
+          github: { ...DEFAULT_SITE_DATA.github, ...(parsed.github || {}) },
+          linkedin: { ...DEFAULT_SITE_DATA.linkedin, ...(parsed.linkedin || {}) },
+          customProjects: parsed.customProjects !== undefined ? parsed.customProjects : DEFAULT_SITE_DATA.customProjects,
+          skillsCategories: parsed.skillsCategories !== undefined ? parsed.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
+          achievements: parsed.achievements !== undefined ? parsed.achievements : DEFAULT_SITE_DATA.achievements,
+          education: { ...DEFAULT_SITE_DATA.education, ...(parsed.education || {}) }
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Could not read cached site data from localStorage:', e);
+  }
+  return DEFAULT_SITE_DATA;
+};
+
 export const SiteProvider = ({ children }) => {
-  // Always initialize with DEFAULT_SITE_DATA to guarantee instant zero-wait rendering
-  const [siteData, setSiteData] = useState(DEFAULT_SITE_DATA);
+  const [siteData, setSiteData] = useState(getInitialSiteData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [themeMode, setThemeMode] = useState('dark');
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return parsed?.theme?.mode || 'dark';
+      }
+    } catch (e) {}
+    return 'dark';
+  });
 
   // Apply theme tokens to CSS custom variables on root HTML
   const applyThemeTokens = (theme, mode = 'dark') => {
@@ -52,27 +89,31 @@ export const SiteProvider = ({ children }) => {
           about: { ...DEFAULT_SITE_DATA.about, ...(data.about || {}) },
           github: { ...DEFAULT_SITE_DATA.github, ...(data.github || {}) },
           linkedin: { ...DEFAULT_SITE_DATA.linkedin, ...(data.linkedin || {}) },
-          customProjects: data.customProjects && data.customProjects.length > 0 ? data.customProjects : DEFAULT_SITE_DATA.customProjects,
-          skillsCategories: data.skillsCategories && data.skillsCategories.length > 0 ? data.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
-          achievements: data.achievements && data.achievements.length > 0 ? data.achievements : DEFAULT_SITE_DATA.achievements,
+          customProjects: data.customProjects !== undefined ? data.customProjects : DEFAULT_SITE_DATA.customProjects,
+          skillsCategories: data.skillsCategories !== undefined ? data.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
+          achievements: data.achievements !== undefined ? data.achievements : DEFAULT_SITE_DATA.achievements,
           education: { ...DEFAULT_SITE_DATA.education, ...(data.education || {}) }
         };
         setSiteData(merged);
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
+        } catch (e) {}
         const activeMode = merged.theme?.mode || 'dark';
         setThemeMode(activeMode);
         applyThemeTokens(merged.theme, activeMode);
       }
     } catch (err) {
-      console.warn('Using default site data (backend offline or booting):', err.message);
-      applyThemeTokens(DEFAULT_SITE_DATA.theme, 'dark');
+      console.warn('Using cached / default site data:', err.message);
+      const current = getInitialSiteData();
+      applyThemeTokens(current.theme, current.theme?.mode || 'dark');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    // Initial token application
-    applyThemeTokens(DEFAULT_SITE_DATA.theme, 'dark');
+    const current = getInitialSiteData();
+    applyThemeTokens(current.theme, current.theme?.mode || 'dark');
     loadData();
   }, [loadData]);
 
@@ -91,6 +132,9 @@ export const SiteProvider = ({ children }) => {
         }
       };
       setSiteData(updated);
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
+      } catch (e) {}
     }
   };
 
@@ -104,13 +148,33 @@ export const SiteProvider = ({ children }) => {
           mode: themeMode
         }
       };
+
+      // 1. Immediately persist to localStorage so data never vanishes on reopen/refresh
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+      setSiteData(payload);
+      applyThemeTokens(payload.theme, themeMode);
+
+      // 2. Persist to MongoDB backend
       const response = await api.updateSiteData(payload);
-      setSiteData(response.data);
-      applyThemeTokens(response.data.theme, themeMode);
-      return { success: true, message: response.message };
+      if (response && response.data) {
+        const merged = {
+          ...payload,
+          ...response.data
+        };
+        setSiteData(merged);
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
+        } catch (e) {}
+        applyThemeTokens(merged.theme, themeMode);
+      }
+      return { success: true, message: response?.message || 'Changes saved successfully' };
     } catch (err) {
-      console.error('Failed to save portfolio data:', err);
-      return { success: false, error: err.message };
+      console.error('Failed to sync to backend database, saved locally in browser:', err);
+      return { success: true, message: 'Saved locally in browser storage.' };
     } finally {
       setSaving(false);
     }

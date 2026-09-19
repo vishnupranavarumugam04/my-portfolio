@@ -4,20 +4,15 @@ dotenv.config();
 const app = require('../server/src/app');
 const { connectDB } = require('../server/src/config/db');
 
-// Connect to database in serverless lifecycle (cached connection across invocations)
-let dbPromise = null;
+let isConnecting = false;
 
 const handler = async (req, res) => {
   try {
-    if (!dbPromise) {
-      dbPromise = connectDB().catch((err) => {
-        console.warn('⚠️ [Serverless] Database connection warning:', err.message);
-        return null;
-      });
+    if (process.env.MONGODB_URI) {
+      await connectDB();
     }
-    await dbPromise;
   } catch (err) {
-    console.warn('⚠️ [Serverless] DB promise catch:', err.message);
+    console.warn('⚠️ [Serverless] DB connect warning:', err.message);
   }
 
   return app(req, res);

@@ -53,8 +53,12 @@ const connectDB = async () => {
   const uri = process.env.MONGODB_URI;
 
   if (!uri || uri.includes('<username>')) {
-    console.log('ℹ️ [Database] MONGODB_URI not provided. Using resilient local file/memory store with Vishnu Pranav profile data.');
     loadFallbackData();
+    return;
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    isConnectedToMongo = true;
     return;
   }
 
@@ -80,7 +84,11 @@ const connectDB = async () => {
 };
 
 const getSiteData = async () => {
-  if (isConnectedToMongo) {
+  if (process.env.MONGODB_URI && mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
+
+  if (mongoose.connection.readyState === 1) {
     try {
       let doc = await Site.findOne();
       if (!doc) {
@@ -99,7 +107,11 @@ const getSiteData = async () => {
 };
 
 const updateSiteData = async (newData) => {
-  if (isConnectedToMongo) {
+  if (process.env.MONGODB_URI && mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
+
+  if (mongoose.connection.readyState === 1) {
     try {
       const doc = await Site.findOneAndUpdate(
         {},
@@ -148,5 +160,5 @@ module.exports = {
   connectDB,
   getSiteData,
   updateSiteData,
-  isMongoConnected: () => isConnectedToMongo
+  isMongoConnected: () => mongoose.connection.readyState === 1
 };
