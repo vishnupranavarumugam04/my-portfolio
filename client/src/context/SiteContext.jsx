@@ -34,6 +34,8 @@ const getInitialSiteData = () => {
   return DEFAULT_SITE_DATA;
 };
 
+const broadcastChannel = typeof window !== 'undefined' && window.BroadcastChannel ? new BroadcastChannel('portfolio_sync_channel') : null;
+
 export const SiteProvider = ({ children }) => {
   const [siteData, setSiteData] = useState(getInitialSiteData);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,24 @@ export const SiteProvider = ({ children }) => {
     try {
       setError(null);
       const data = await api.getSiteData();
+      
+      // Check if user has newer local custom edits
+      let localData = null;
+      try {
+        const localCached = localStorage.getItem(CACHE_KEY);
+        if (localCached) localData = JSON.parse(localCached);
+      } catch (e) {}
+
       if (data && typeof data === 'object') {
+        // If client has user-saved custom edits and server is returning older/unauthenticated data, protect local edits
+        if (localData && localData._savedAt && (!data._savedAt || data._savedAt < localData._savedAt)) {
+          setSiteData(localData);
+          const activeMode = localData.theme?.mode || 'dark';
+          setThemeMode(activeMode);
+          applyThemeTokens(localData.theme, activeMode);
+          return;
+        }
+
         const merged = {
           ...DEFAULT_SITE_DATA,
           ...data,
@@ -94,7 +113,8 @@ export const SiteProvider = ({ children }) => {
           customProjects: Array.isArray(data.customProjects) ? data.customProjects : DEFAULT_SITE_DATA.customProjects,
           skillsCategories: Array.isArray(data.skillsCategories) ? data.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
           achievements: Array.isArray(data.achievements) ? data.achievements : DEFAULT_SITE_DATA.achievements,
-          education: { ...DEFAULT_SITE_DATA.education, ...(data.education || {}) }
+          education: { ...DEFAULT_SITE_DATA.education, ...(data.education || {}) },
+          _savedAt: data._savedAt || Date.now()
         };
         setSiteData(merged);
         try {
@@ -117,6 +137,36 @@ export const SiteProvider = ({ children }) => {
     const current = getInitialSiteData();
     applyThemeTokens(current.theme, current.theme?.mode || 'dark');
     loadData();
+
+    // Cross-tab real-time synchronization listener
+    const handleStorageChange = (e) => {
+      if (e.key === CACHE_KEY && e.newValue) {
+        try {
+          const updated = JSON.parse(e.newValue);
+          setSiteData(updated);
+          applyThemeTokens(updated.theme, updated.theme?.mode || 'dark');
+        } catch (err) {}
+      }
+    };
+
+    const handleBroadcastMessage = (e) => {
+      if (e.data && e.data.type === 'SITE_DATA_UPDATED' && e.data.payload) {
+        setSiteData(e.data.payload);
+        applyThemeTokens(e.data.payload.theme, e.data.payload.theme?.mode || 'dark');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    if (broadcastChannel) {
+      broadcastChannel.addEventListener('message', handleBroadcastMessage);
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      if (broadcastChannel) {
+        broadcastChannel.removeEventListener('message', handleBroadcastMessage);
+      }
+    };
   }, [loadData]);
 
   // Toggle Theme Mode
@@ -131,11 +181,13 @@ export const SiteProvider = ({ children }) => {
         theme: {
           ...siteData.theme,
           mode: nextMode
-        }
+        },
+        _savedAt: Date.now()
       };
       setSiteData(updated);
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
+        broadcastChannel?.postMessage({ type: 'SITE_DATA_UPDATED', payload: updated });
       } catch (e) {}
     }
   };
@@ -143,39 +195,44 @@ export const SiteProvider = ({ children }) => {
   const saveSiteData = async (updatedData) => {
     try {
       setSaving(true);
+      const now = Date.now();
       const payload = {
         ...updatedData,
         theme: {
           ...updatedData.theme,
           mode: themeMode
-        }
+        },
+        _savedAt: now
       };
 
-      // 1. Immediately persist to localStorage so data never vanishes on reopen/refresh
+      // 1. Immediately persist to localStorage & broadcast to all open tabs
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+        broadcastChannel?.postMessage({ type: 'SITE_DATA_UPDATED', payload });
       } catch (e) {
         console.warn('LocalStorage save error:', e);
       }
       setSiteData(payload);
       applyThemeTokens(payload.theme, themeMode);
 
-      // 2. Persist to MongoDB backend
+      // 2. Persist to backend
       const response = await api.updateSiteData(payload);
       if (response && response.data) {
         const merged = {
           ...payload,
-          ...response.data
+          ...response.data,
+          _savedAt: now
         };
         setSiteData(merged);
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
+          broadcastChannel?.postMessage({ type: 'SITE_DATA_UPDATED', payload: merged });
         } catch (e) {}
         applyThemeTokens(merged.theme, themeMode);
       }
       return { success: true, message: response?.message || 'Changes saved successfully' };
     } catch (err) {
-      console.error('Failed to sync to backend database, saved locally in browser:', err);
+      console.warn('Saved locally in browser storage:', err.message);
       return { success: true, message: 'Saved locally in browser storage.' };
     } finally {
       setSaving(false);

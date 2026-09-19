@@ -30,6 +30,7 @@ const SkillCategorySchema = new mongoose.Schema({
 }, { _id: false });
 
 const AchievementSchema = new mongoose.Schema({
+  id: { type: String, default: () => Math.random().toString(36).substring(2, 9) },
   title: { type: String, required: true },
   badge: { type: String, default: 'Winner' },
   organization: { type: String, default: '' },
