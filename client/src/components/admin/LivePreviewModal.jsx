@@ -12,41 +12,34 @@ export const LivePreviewModal = ({ isOpen, onClose, data }) => {
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
     }
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
-      {/* Top Header Bar */}
-      <div className="w-full max-w-6xl bg-[#141619] text-white rounded-t-3xl px-6 py-4 flex items-center justify-between border-b border-zinc-800">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold tracking-tight font-heading">Portfolio Live Preview</span>
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-mono border border-emerald-800 flex items-center gap-1.5 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Live Preview
-          </span>
-        </div>
-
-        {/* Close Button */}
+    <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto overflow-x-hidden bg-[#0A0B0D] animate-in fade-in duration-200">
+      {/* Floating High-Z-Index Close Pill */}
+      <div className="fixed top-5 right-5 z-[100000] flex items-center gap-2">
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-200 hover:text-white transition-all border border-zinc-700/80 active:scale-95"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900/95 hover:bg-black text-white text-xs font-bold shadow-2xl border-2 border-white/40 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ring-4 ring-black/30"
           title="Close Preview (Esc)"
         >
-          <span>Close</span>
-          <X className="w-4 h-4" />
+          <span>Close Preview</span>
+          <X className="w-4 h-4 text-zinc-300" />
         </button>
       </div>
 
-      {/* Full Preview Body */}
-      <div className="w-full max-w-6xl h-[84vh] bg-[#0A0B0D] rounded-b-3xl overflow-hidden border border-t-0 border-zinc-800 flex flex-col">
-        <div className="w-full h-full overflow-y-auto overflow-x-hidden bg-[#0A0B0D]">
-          <PortfolioPage previewData={data} />
-        </div>
+      {/* Full Real-Time Portfolio View */}
+      <div className="w-full min-h-screen">
+        <PortfolioPage previewData={data} />
       </div>
     </div>
   );
