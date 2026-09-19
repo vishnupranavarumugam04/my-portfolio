@@ -234,6 +234,7 @@ export const AdminDashboardPage = () => {
       <LivePreviewModal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
+        data={currentData}
       />
     </div>
   );

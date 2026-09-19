@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { X, Smartphone, Monitor, Tablet, ExternalLink, RefreshCw } from 'lucide-react';
+import { X, Smartphone, Monitor, Tablet, ExternalLink } from 'lucide-react';
+import { PortfolioPage } from '../../pages/PortfolioPage';
 
-export const LivePreviewModal = ({ isOpen, onClose }) => {
-  const [device, setDevice] = useState('desktop'); // desktop, tablet, mobile
-  const [key, setKey] = useState(0);
+export const LivePreviewModal = ({ isOpen, onClose, data }) => {
+  const [device, setDevice] = useState('desktop');
 
   if (!isOpen) return null;
 
   const getDeviceWidth = () => {
     switch (device) {
       case 'mobile':
-        return 'w-[375px] h-[667px]';
+        return 'w-[390px] h-[720px]';
       case 'tablet':
-        return 'w-[768px] h-[800px]';
+        return 'w-[768px] h-[820px]';
       case 'desktop':
       default:
         return 'w-full h-full';
@@ -20,19 +20,21 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4">
       {/* Top Controls Bar */}
       <div className="w-full max-w-6xl bg-[#141619] text-white rounded-t-3xl px-6 py-3.5 flex items-center justify-between border-b border-zinc-800">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold tracking-tight font-heading">Live Portfolio Preview</span>
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-mono border border-zinc-700">
-            Realtime Frame
+          <span className="text-sm font-bold tracking-tight font-heading">Real-Time Live Preview</span>
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-mono border border-emerald-800 flex items-center gap-1.5 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Live In-Sync
           </span>
         </div>
 
         {/* Viewport switchers */}
         <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
           <button
+            type="button"
             onClick={() => setDevice('desktop')}
             className={`px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors font-medium ${
               device === 'desktop' ? 'bg-zinc-800 text-white shadow-xs font-bold' : 'text-zinc-400 hover:text-white'
@@ -43,6 +45,7 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
             <span className="hidden sm:inline">Desktop</span>
           </button>
           <button
+            type="button"
             onClick={() => setDevice('tablet')}
             className={`px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors font-medium ${
               device === 'tablet' ? 'bg-zinc-800 text-white shadow-xs font-bold' : 'text-zinc-400 hover:text-white'
@@ -53,6 +56,7 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
             <span className="hidden sm:inline">Tablet</span>
           </button>
           <button
+            type="button"
             onClick={() => setDevice('mobile')}
             className={`px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors font-medium ${
               device === 'mobile' ? 'bg-zinc-800 text-white shadow-xs font-bold' : 'text-zinc-400 hover:text-white'
@@ -66,13 +70,6 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setKey(k => k + 1)}
-            className="p-2 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors"
-            title="Reload Preview"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
           <a
             href="/"
             target="_blank"
@@ -83,6 +80,7 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors ml-1"
           >
@@ -92,14 +90,9 @@ export const LivePreviewModal = ({ isOpen, onClose }) => {
       </div>
 
       {/* Frame Viewer */}
-      <div className="w-full max-w-6xl h-[80vh] bg-[#0A0B0D] rounded-b-3xl overflow-hidden flex items-center justify-center p-4 border border-t-0 border-zinc-800">
-        <div className={`transition-all duration-300 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 bg-zinc-950 ${getDeviceWidth()}`}>
-          <iframe
-            key={key}
-            src="/"
-            title="Live Portfolio Preview"
-            className="w-full h-full border-0"
-          />
+      <div className="w-full max-w-6xl h-[82vh] bg-[#0A0B0D] rounded-b-3xl overflow-hidden flex items-center justify-center p-3 border border-t-0 border-zinc-800">
+        <div className={`transition-all duration-300 rounded-2xl overflow-y-auto overflow-x-hidden shadow-2xl border border-zinc-800 bg-[#0A0B0D] ${getDeviceWidth()}`}>
+          <PortfolioPage previewData={data} />
         </div>
       </div>
     </div>

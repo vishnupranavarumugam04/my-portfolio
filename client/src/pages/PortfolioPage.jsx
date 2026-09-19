@@ -11,8 +11,9 @@ import { ConnectSection } from '../components/portfolio/ConnectSection';
 import { Footer } from '../components/portfolio/Footer';
 import { Loader2 } from 'lucide-react';
 
-export const PortfolioPage = () => {
-  const { siteData, loading } = useSite();
+export const PortfolioPage = ({ previewData }) => {
+  const { siteData: contextData, loading } = useSite();
+  const siteData = previewData || contextData;
 
   // Reset robots meta tag for public portfolio
   useEffect(() => {

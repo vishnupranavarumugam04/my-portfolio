@@ -182,25 +182,14 @@ export const HeroSection = ({ siteData }) => {
             </div>
           </div>
 
-          {/* Dynamic Rotating Statement Headline */}
+          {/* Statement Headline */}
           <div className="min-h-[54px] sm:min-h-[64px] flex flex-col justify-center mb-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeDomain.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold leading-snug text-zinc-900 dark:text-zinc-100"
-              >
-                <span>Engineering intelligent </span>
-                <span
-                  className="italic font-serif font-medium underline decoration-zinc-400/60 decoration-wavy underline-offset-8 transition-colors inline-block text-zinc-900 dark:text-white"
-                >
-                  {activeDomain.highlight}
-                </span>
-              </motion.div>
-            </AnimatePresence>
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold leading-snug text-zinc-900 dark:text-zinc-100">
+              <span>{hero.headline || "Building intelligent robotic systems & embedded"} </span>
+              <span className="italic font-serif font-medium underline decoration-zinc-400/60 decoration-wavy underline-offset-8 transition-colors inline-block text-zinc-900 dark:text-white">
+                {hero.headlineHighlight || "AI automation."}
+              </span>
+            </h2>
           </div>
 
           {/* Body Copy */}
