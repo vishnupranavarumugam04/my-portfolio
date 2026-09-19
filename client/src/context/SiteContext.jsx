@@ -20,9 +20,10 @@ const getInitialSiteData = () => {
           about: { ...DEFAULT_SITE_DATA.about, ...(parsed.about || {}) },
           github: { ...DEFAULT_SITE_DATA.github, ...(parsed.github || {}) },
           linkedin: { ...DEFAULT_SITE_DATA.linkedin, ...(parsed.linkedin || {}) },
-          customProjects: parsed.customProjects !== undefined ? parsed.customProjects : DEFAULT_SITE_DATA.customProjects,
-          skillsCategories: parsed.skillsCategories !== undefined ? parsed.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
-          achievements: parsed.achievements !== undefined ? parsed.achievements : DEFAULT_SITE_DATA.achievements,
+          stats: Array.isArray(parsed.stats) ? parsed.stats : DEFAULT_SITE_DATA.stats,
+          customProjects: Array.isArray(parsed.customProjects) ? parsed.customProjects : DEFAULT_SITE_DATA.customProjects,
+          skillsCategories: Array.isArray(parsed.skillsCategories) ? parsed.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
+          achievements: Array.isArray(parsed.achievements) ? parsed.achievements : DEFAULT_SITE_DATA.achievements,
           education: { ...DEFAULT_SITE_DATA.education, ...(parsed.education || {}) }
         };
       }
@@ -89,9 +90,10 @@ export const SiteProvider = ({ children }) => {
           about: { ...DEFAULT_SITE_DATA.about, ...(data.about || {}) },
           github: { ...DEFAULT_SITE_DATA.github, ...(data.github || {}) },
           linkedin: { ...DEFAULT_SITE_DATA.linkedin, ...(data.linkedin || {}) },
-          customProjects: data.customProjects !== undefined ? data.customProjects : DEFAULT_SITE_DATA.customProjects,
-          skillsCategories: data.skillsCategories !== undefined ? data.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
-          achievements: data.achievements !== undefined ? data.achievements : DEFAULT_SITE_DATA.achievements,
+          stats: Array.isArray(data.stats) ? data.stats : DEFAULT_SITE_DATA.stats,
+          customProjects: Array.isArray(data.customProjects) ? data.customProjects : DEFAULT_SITE_DATA.customProjects,
+          skillsCategories: Array.isArray(data.skillsCategories) ? data.skillsCategories : DEFAULT_SITE_DATA.skillsCategories,
+          achievements: Array.isArray(data.achievements) ? data.achievements : DEFAULT_SITE_DATA.achievements,
           education: { ...DEFAULT_SITE_DATA.education, ...(data.education || {}) }
         };
         setSiteData(merged);

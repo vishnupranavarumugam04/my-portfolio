@@ -111,18 +111,30 @@ const updateSiteData = async (newData) => {
     await connectDB();
   }
 
+  // Sanitize payload: strip immutable fields to prevent MongoDB update rejections
+  const cleanPayload = { ...newData };
+  delete cleanPayload._id;
+  delete cleanPayload.__v;
+  delete cleanPayload.createdAt;
+  delete cleanPayload.updatedAt;
+
   if (mongoose.connection.readyState === 1) {
     try {
-      const doc = await Site.findOneAndUpdate(
-        {},
-        { $set: newData },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
-      );
+      let doc = await Site.findOne();
+      if (doc) {
+        doc = await Site.findByIdAndUpdate(
+          doc._id,
+          { $set: cleanPayload },
+          { new: true, runValidators: false }
+        );
+      } else {
+        doc = await Site.create(cleanPayload);
+      }
       if (doc) {
         return doc.toObject();
       }
     } catch (err) {
-      console.error('Error saving to Mongo, falling back to local store:', err.message);
+      console.error('Error saving to Mongo, falling back to local store:', err);
     }
   }
 
@@ -132,17 +144,17 @@ const updateSiteData = async (newData) => {
   }
   memorySiteData = {
     ...memorySiteData,
-    ...newData,
-    hero: { ...memorySiteData.hero, ...(newData.hero || {}) },
-    theme: { ...memorySiteData.theme, ...(newData.theme || {}) },
-    about: { ...memorySiteData.about, ...(newData.about || {}) },
-    github: { ...memorySiteData.github, ...(newData.github || {}) },
-    linkedin: { ...memorySiteData.linkedin, ...(newData.linkedin || {}) },
-    customProjects: newData.customProjects !== undefined ? newData.customProjects : (memorySiteData.customProjects || []),
-    skillsCategories: newData.skillsCategories !== undefined ? newData.skillsCategories : (memorySiteData.skillsCategories || []),
-    achievements: newData.achievements !== undefined ? newData.achievements : (memorySiteData.achievements || []),
-    education: { ...memorySiteData.education, ...(newData.education || {}) },
-    stats: newData.stats || memorySiteData.stats,
+    ...cleanPayload,
+    hero: { ...memorySiteData.hero, ...(cleanPayload.hero || {}) },
+    theme: { ...memorySiteData.theme, ...(cleanPayload.theme || {}) },
+    about: { ...memorySiteData.about, ...(cleanPayload.about || {}) },
+    github: { ...memorySiteData.github, ...(cleanPayload.github || {}) },
+    linkedin: { ...memorySiteData.linkedin, ...(cleanPayload.linkedin || {}) },
+    customProjects: cleanPayload.customProjects !== undefined ? cleanPayload.customProjects : (memorySiteData.customProjects || []),
+    skillsCategories: cleanPayload.skillsCategories !== undefined ? cleanPayload.skillsCategories : (memorySiteData.skillsCategories || []),
+    achievements: cleanPayload.achievements !== undefined ? cleanPayload.achievements : (memorySiteData.achievements || []),
+    education: { ...memorySiteData.education, ...(cleanPayload.education || {}) },
+    stats: cleanPayload.stats || memorySiteData.stats,
     updatedAt: new Date().toISOString()
   };
 
