@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useSite } from '../context/SiteContext';
 import { DEFAULT_SITE_DATA } from '../context/siteDefaults';
 import { HeroEditor } from '../components/admin/HeroEditor';
+import { SkillsEditor } from '../components/admin/SkillsEditor';
 import { StatsEditor } from '../components/admin/StatsEditor';
 import { IntegrationsEditor } from '../components/admin/IntegrationsEditor';
 import { AboutEditor } from '../components/admin/AboutEditor';
 import { AchievementsEditor } from '../components/admin/AchievementsEditor';
+import { ThemeEditor } from '../components/admin/ThemeEditor';
 import { LivePreviewModal } from '../components/admin/LivePreviewModal';
 import {
   Sparkles,
+  Layers,
   BarChart2,
   FolderGit2,
   UserCheck,
+  Palette,
   Save,
   Eye,
   ExternalLink,
@@ -26,10 +30,12 @@ import { Link } from 'react-router-dom';
 
 const TABS = [
   { id: 'hero', label: 'Hero & Identity', icon: Sparkles, desc: 'Name, Role, Portrait & Headlines' },
+  { id: 'skills', label: 'Skills & Stack', icon: Layers, desc: 'Categories & Tech Stacks' },
   { id: 'integrations', label: 'Projects & GitHub', icon: FolderGit2, desc: 'Featured Projects & Live GitHub' },
   { id: 'achievements', label: 'Hackathons & Awards', icon: Trophy, desc: 'Milestones, Prizes & Education' },
   { id: 'stats', label: 'Stats Strip', icon: BarChart2, desc: 'Top Metric Badges & Counters' },
-  { id: 'about', label: 'About & Socials', icon: UserCheck, desc: 'Bio, Email, Campus & Links' }
+  { id: 'about', label: 'About & Socials', icon: UserCheck, desc: 'Bio, Email, Campus & Links' },
+  { id: 'theme', label: 'Theme & Design', icon: Palette, desc: 'Palettes, Tokens & Typography' }
 ];
 
 export const AdminDashboardPage = () => {
@@ -172,7 +178,7 @@ export const AdminDashboardPage = () => {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         
         {/* Top Horizontal Tab Navigator */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 mb-8">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -212,6 +218,10 @@ export const AdminDashboardPage = () => {
             <HeroEditor data={currentData} onChange={setFormData} />
           )}
 
+          {activeTab === 'skills' && (
+            <SkillsEditor data={currentData} onChange={setFormData} />
+          )}
+
           {activeTab === 'integrations' && (
             <IntegrationsEditor data={currentData} onChange={setFormData} />
           )}
@@ -226,6 +236,10 @@ export const AdminDashboardPage = () => {
 
           {activeTab === 'about' && (
             <AboutEditor data={currentData} onChange={setFormData} />
+          )}
+
+          {activeTab === 'theme' && (
+            <ThemeEditor data={currentData} onChange={setFormData} />
           )}
         </div>
       </main>

@@ -46,11 +46,11 @@ export const SkillsSection = ({ siteData }) => {
           const Icon = CATEGORY_ICONS[cat.category] || Cpu;
           return (
             <motion.div
-              key={cat.category || idx}
-              initial={{ opacity: 0, y: 20 }}
+              key={cat.category || `cat-${idx}`}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              transition={{ duration: 0.4, delay: idx * 0.05 }}
               className="p-6 rounded-2xl glass-card relative overflow-hidden group hover:-translate-y-1.5 transition-transform border border-zinc-200 dark:border-zinc-800"
             >
               {/* Top gradient line */}

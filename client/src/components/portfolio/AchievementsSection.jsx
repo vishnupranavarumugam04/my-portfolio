@@ -30,11 +30,11 @@ export const AchievementsSection = ({ siteData }) => {
         <div className="lg:col-span-8 space-y-4">
           {achievements.map((item, idx) => (
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              key={item.id || `ach-${idx}-${item.title}`}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              transition={{ duration: 0.4, delay: idx * 0.05 }}
               className="p-6 rounded-2xl glass-card flex items-start gap-4 hover:-translate-x-1 transition-transform border border-zinc-200 dark:border-zinc-800"
             >
               <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 text-zinc-800 dark:text-zinc-200 flex items-center justify-center shrink-0 shadow-xs border border-zinc-200 dark:border-zinc-700/60 mt-0.5">
